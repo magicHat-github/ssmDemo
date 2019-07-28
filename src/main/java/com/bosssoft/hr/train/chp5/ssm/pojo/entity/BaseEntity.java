@@ -13,6 +13,11 @@ import java.util.Date;
 public class BaseEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    /**
+     * 状态
+     */
+    private Boolean status;
     /**
      * 创建人
      */
@@ -74,10 +79,19 @@ public class BaseEntity implements Serializable {
         this.version = version;
     }
 
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
+    }
+
     @Override
     public String toString() {
         return "BaseEntity{" +
-                "createdBy=" + createdBy +
+                "status=" + status +
+                ", createdBy=" + createdBy +
                 ", createdTime=" + createdTime +
                 ", updatedBy=" + updatedBy +
                 ", updatedTime=" + updatedTime +

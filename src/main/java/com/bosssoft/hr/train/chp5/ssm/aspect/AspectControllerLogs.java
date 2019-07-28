@@ -54,10 +54,4 @@ public class AspectControllerLogs {
         logger.info("RESULT : " + result);
         logger.info("SPEND TIME : " + (System.currentTimeMillis() - startTime));
     }
-
-    @AfterThrowing(pointcut = "controllerLog()",throwing = "ex")
-    public void doThrowing(Throwable ex){
-        logger.info("THROW EXCEPTION : " + ex);
-    }
-
 }

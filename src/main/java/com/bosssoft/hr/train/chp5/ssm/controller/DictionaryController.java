@@ -6,11 +6,15 @@ import com.bosssoft.hr.train.chp5.ssm.pojo.entity.Dictionary;
 import com.bosssoft.hr.train.chp5.ssm.pojo.entity.User;
 import com.bosssoft.hr.train.chp5.ssm.pojo.vo.AjaxResult;
 import com.bosssoft.hr.train.chp5.ssm.service.DictionaryService;
+import com.github.pagehelper.PageInfo;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 数据字典的控制层
@@ -27,53 +31,31 @@ public class DictionaryController {
     /**
      * 保存数据字典
      * @param dictionary 数据字典
-     * @param session 请求，用于获取登录信息
      * @return 数据的处理
      */
     @LogController("保存数据字典")
     @PostMapping("save")
-    public AjaxResult saveOne(@RequestBody Dictionary dictionary, HttpSession session){
-        AjaxResult ajaxResult;
-        try {
-            User user = (User) session.getAttribute("user");
-            if(user==null){
-                throw new NoLoginException();
-            }
-            if (dictionary==null){
-                throw new ParamsException();
-            }
-            Integer rows = dictionaryService.insertOne(dictionary, user);
-            ajaxResult = AjaxResult.success("添加成功！",rows);
-        }catch (NoLoginException | ParamsException | SaveBeanException e){
-            ajaxResult = AjaxResult.error(e.getCode(),e.getMessage());
+    public AjaxResult saveOne(@RequestBody Dictionary dictionary){
+        if (dictionary==null){
+            throw new ParamsException();
         }
-        return ajaxResult;
+        Integer rows = dictionaryService.insertOne(dictionary);
+        return AjaxResult.success("添加成功！",rows);
     }
 
     /**
      * 修改数据字典
      * @param dictionary 数据字典
-     * @param session 请求会话，用于获取登录信息
      * @return 数据的处理信息
      */
     @LogController("修改数据字典")
     @PutMapping("update")
-    public AjaxResult updateOne(@RequestBody Dictionary dictionary, HttpSession session){
-        AjaxResult ajaxResult;
-        try{
-            User user = (User) session.getAttribute("user");
-            if(user==null){
-                throw new NoLoginException();
-            }
-            if (dictionary==null){
-                throw new ParamsException();
-            }
-            Integer rows = dictionaryService.updateOne(dictionary,user);
-            ajaxResult = AjaxResult.success("修改成功！",rows);
-        }catch (NoLoginException | ParamsException | UpdateBeanException e){
-            ajaxResult = AjaxResult.error(e.getCode(),e.getMessage());
+    public AjaxResult updateOne(@RequestBody Dictionary dictionary){
+        if (dictionary==null){
+            throw new ParamsException();
         }
-        return ajaxResult;
+        Integer rows = dictionaryService.updateOne(dictionary);
+        return AjaxResult.success("修改成功！",rows);
     }
 
     /**
@@ -84,17 +66,11 @@ public class DictionaryController {
     @LogController("根据编号查询数据字典")
     @GetMapping("id/{id}")
     public AjaxResult getById(@PathVariable("id") Long id){
-        AjaxResult ajaxResult;
-        try{
-            if (id==null){
-                throw new ParamsException();
-            }
-            Dictionary dictionary = dictionaryService.selectOneById(id);
-            ajaxResult = AjaxResult.success("查询成功！",dictionary);
-        }catch (ParamsException e){
-            ajaxResult = AjaxResult.error(e.getCode(),e.getMessage());
+        if (id==null){
+            throw new ParamsException();
         }
-        return ajaxResult;
+        Dictionary dictionary = dictionaryService.selectOneById(id);
+        return AjaxResult.success("查询成功！",dictionary);
     }
 
     /**
@@ -104,14 +80,7 @@ public class DictionaryController {
     @LogController("查询数据字典的全部集合")
     @GetMapping("list/all")
     public AjaxResult getList(){
-        AjaxResult ajaxResult;
-        try{
-            List<Dictionary> list = dictionaryService.selectList();
-            ajaxResult = AjaxResult.success("查询成功",list);
-        }catch (Exception e){
-            ajaxResult = AjaxResult.error(e.getMessage());
-        }
-        return ajaxResult;
+        return AjaxResult.success("查询成功",dictionaryService.selectList());
     }
 
     /**
@@ -125,16 +94,19 @@ public class DictionaryController {
     @GetMapping("list")
     public AjaxResult getByDictionary(@RequestParam(value = "size",defaultValue = "4")Integer size,
                                       @RequestParam(value = "page", defaultValue = "1")Integer page,
-                                      @RequestBody Dictionary dictionary){
+                                      Dictionary dictionary){
         AjaxResult ajaxResult;
-        try{
-            if (dictionary ==null){
-                throw new ParamsException();
-            }
-            List<Dictionary> list = dictionaryService.selectListByPage(dictionary, size, page);
-            ajaxResult = AjaxResult.success("查询成功！",list);
-        }catch (ParamsException e){
-            ajaxResult = AjaxResult.error(e.getCode(),e.getMessage());
+        if (dictionary ==null){
+            throw new ParamsException();
+        }
+        PageInfo<Dictionary> pageInfo = dictionaryService.selectListByPage(dictionary, size, page);
+        if (pageInfo != null) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("list", pageInfo.getList());
+            map.put("total", pageInfo.getTotal());
+            ajaxResult = AjaxResult.success("查询成功！", map);
+        }else {
+            ajaxResult = AjaxResult.success("查询失败！");
         }
         return ajaxResult;
     }
@@ -142,45 +114,30 @@ public class DictionaryController {
     /**
      * 删除数据字典
      * @param id 数据字典的编号
-     * @param session 请求会话，用于获取登录信息
      * @return 数据的处理信息
      */
     @LogController("删除数据字典")
-    @DeleteMapping("{id}")
-    public AjaxResult deleteById(@PathVariable("id") Long id, HttpSession session){
-        AjaxResult ajaxResult;
-        try{
-            User user = (User) session.getAttribute("user");
-            if(user==null){
-                throw new NoLoginException();
-            }
-            if (id==null){
-                throw new ParamsException();
-            }
-            Integer rows = dictionaryService.deleteOneById(id, user);
-            ajaxResult = AjaxResult.success("删除成功！",rows);
-        }catch (NoLoginException | ParamsException | DeleteBeanException e){
-            ajaxResult = AjaxResult.error(e.getCode(),e.getMessage());
+    @DeleteMapping("id/{id}")
+    public AjaxResult deleteById(@PathVariable("id") Long id){
+        if (id==null){
+            throw new ParamsException();
         }
-        return ajaxResult;
+        Integer rows = dictionaryService.deleteOneById(id);
+        return AjaxResult.success("删除成功！",rows);
     }
 
     /**
-     * 模拟登录
-     * @param session 请求会话，用于保存登录信息
+     * 批量删除数据字典
+     * @param ids 数据字典的编号集合
      * @return 数据的处理信息
      */
-    @PostMapping("login")
-    public AjaxResult login(HttpSession session){
-        AjaxResult ajaxResult;
-        try{
-            User user = new User();
-            user.setUserId(3L);
-            session.setAttribute("user",user);
-            ajaxResult = AjaxResult.success("登录成功", user);
-        }catch (Exception e){
-            ajaxResult = AjaxResult.error(e.getMessage());
+    @LogController("批量删除数据字典")
+    @DeleteMapping("ids")
+    public AjaxResult deleteBatch(@RequestBody Long[] ids){
+        if (ids==null){
+            throw new ParamsException();
         }
-        return ajaxResult;
+        Integer rows = dictionaryService.deleteBatch(Arrays.asList(ids));
+        return AjaxResult.success("删除成功！",rows);
     }
 }

@@ -17,8 +17,6 @@ public class Dictionary extends BaseEntity{
     /**
      * 数据字典编号
      */
-    @Id
-    @KeySql(useGeneratedKeys = true)
     private Long categoryId;
     /**
      * 字典名
@@ -36,10 +34,6 @@ public class Dictionary extends BaseEntity{
      * 备注
      */
     private String remark;
-    /**
-     * 状态
-     */
-    private Boolean status;
     /**
      * 组织编号
      */
@@ -85,14 +79,6 @@ public class Dictionary extends BaseEntity{
         this.remark = remark;
     }
 
-    public Boolean getStatus() {
-        return status;
-    }
-
-    public void setStatus(Boolean status) {
-        this.status = status;
-    }
-
     public Long getOrgId() {
         return orgId;
     }
@@ -109,8 +95,7 @@ public class Dictionary extends BaseEntity{
                 ", category='" + category + '\'' +
                 ", value='" + value + '\'' +
                 ", remark='" + remark + '\'' +
-                ", status=" + status +
                 ", orgId=" + orgId +
-                '}' + super.toString();
+                '}';
     }
 }

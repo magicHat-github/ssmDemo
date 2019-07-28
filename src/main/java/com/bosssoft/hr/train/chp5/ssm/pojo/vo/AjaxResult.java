@@ -26,7 +26,7 @@ public class AjaxResult extends HashMap<String, Object>
      */
     public static AjaxResult error()
     {
-        return error(ResultCode.ERROR, "操作失败", null);
+        return error(ResultCode.ERROR_SERVICE, "操作失败", null);
     }
 
     /**
@@ -37,7 +37,7 @@ public class AjaxResult extends HashMap<String, Object>
      */
     public static AjaxResult error(String msg)
     {
-        return error(ResultCode.ERROR, msg, null);
+        return error(ResultCode.ERROR_SERVICE, msg, null);
     }
 
     /**
@@ -93,6 +93,23 @@ public class AjaxResult extends HashMap<String, Object>
         AjaxResult json = new AjaxResult();
         json.put("msg", msg);
         json.put("code", ResultCode.SUCCESS);
+        json.put("data", object);
+        json.put("status", true);
+        return json;
+    }
+
+    /**
+     * 返回成功消息
+     *
+     * @param msg 内容
+     * @param object 成功数据
+     * @return 成功消息
+     */
+    public static AjaxResult success(long code, String msg, Object object)
+    {
+        AjaxResult json = new AjaxResult();
+        json.put("msg", msg);
+        json.put("code", code);
         json.put("data", object);
         json.put("status", true);
         return json;
